@@ -793,4 +793,105 @@ class OrderController extends Controller
         
         return view('images.show', compact('orderId', 'images'));
     }
+    
+    /**
+     * Legacy API: Get orders list for API compatibility
+     * 
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function legacyIndex(Request $request): JsonResponse
+    {
+        try {
+            $perPage = $request->get('per_page', 20);
+            $page = $request->get('page', 1);
+            
+            $orders = Order::excludeInquiryAndSample()
+                ->orderBy('created', 'desc')
+                ->paginate($perPage);
+                
+            return response()->json([
+                'status' => 'success',
+                'data' => $orders->items(),
+                'pagination' => [
+                    'current_page' => $orders->currentPage(),
+                    'total_pages' => $orders->lastPage(),
+                    'per_page' => $orders->perPage(),
+                    'total_items' => $orders->total()
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Database connection failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Legacy API: Get specific order details
+     * 
+     * @param int $order
+     * @return JsonResponse
+     */
+    public function legacyShow($order): JsonResponse
+    {
+        try {
+            $orderData = Order::findOrFail($order);
+            
+            return response()->json([
+                'status' => 'success',
+                'data' => $orderData
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Order not found',
+                'error' => $e->getMessage()
+            ], 404);
+        }
+    }
+    
+    /**
+     * Legacy API: Update order data
+     * 
+     * @param Request $request
+     * @param int $order
+     * @return JsonResponse
+     */
+    public function legacyUpdate(Request $request, $order): JsonResponse
+    {
+        try {
+            $orderData = Order::findOrFail($order);
+            
+            // Update allowed fields
+            $updateData = $request->only([
+                'process_status',
+                'notes',
+                'edited_by',
+                'edited_at'
+            ]);
+            
+            if (!empty($updateData)) {
+                $updateData['edited_at'] = now();
+                $orderData->update($updateData);
+            }
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Order updated successfully',
+                'data' => $orderData->fresh()
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Update failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
