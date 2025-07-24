@@ -1,0 +1,70 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class PaymentMethod extends Model
+{
+    use HasFactory;
+
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'payment_methods';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'description',
+        'is_active',
+        'sort_order',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'is_active' => 'boolean',
+        'sort_order' => 'integer',
+    ];
+
+    /**
+     * Get active payment methods ordered by sort_order.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', 1)->orderBy('sort_order')->orderBy('name');
+    }
+
+    /**
+     * Get orders using this payment method.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'payment_method_id');
+    }
+
+    /**
+     * Get formatted display name.
+     *
+     * @return string
+     */
+    public function getDisplayNameAttribute()
+    {
+        return $this->name . ($this->description ? " - {$this->description}" : '');
+    }
+} 

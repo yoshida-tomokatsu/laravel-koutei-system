@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laravel 工程管理システム API テスター</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .status-online {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .status-offline {
+            background: #f44336;
+            color: white;
+        }
+
+        .status-loading {
+            background: #ff9800;
+            color: white;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button.success {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        }
+
+        .button.danger {
+            background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
+        }
+
+        .response-box {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .auth-status {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .auth-logged-in {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .auth-logged-out {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .version-info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #2c5282;
+        }
+
+        .api-endpoint {
+            background: #2d3748;
+            color: #4fd1c7;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 5px 0;
+            display: inline-block;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏭 Laravel 工程管理システム</h1>
+            <p>API テスター & 動作確認ツール</p>
+            <div id="systemStatus" class="status-indicator status-loading">
+                <span class="spinner"></span>システム状態を確認中...
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- システム情報セクション -->
+            <div class="section">
+                <h2>📊 システム情報</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>基本情報</h3>
+                        <button class="button" onclick="testSystemInfo()">システム情報取得</button>
+                        <button class="button" onclick="testDatabaseConnection()">DB接続テスト</button>
+                        <button class="button" onclick="testHealthCheck()">ヘルスチェック</button>
+                        <div id="systemInfoResponse" class="response-box" style="display: none;"></div>
+                    </div>
+                    <div class="card">
+                        <h3>API エンドポイント</h3>
+                        <div class="api-endpoint">GET /api/system-info</div>
+                        <div class="api-endpoint">GET /api/database-test</div>
+                        <div class="api-endpoint">GET /api/health</div>
+                        <div class="version-info" id="versionInfo">
+                            システム情報を取得中...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 認証セクション -->
+            <div class="section">
+                <h2>🔐 認証システム</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>ログイン</h3>
+                        <div id="authStatus" class="auth-status auth-logged-out">
+                            ログインしていません
+                        </div>
+                        <div class="input-group">
+                            <label>ユーザー名</label>
+                            <input type="text" id="username" placeholder="admin または employee" value="admin">
+                        </div>
+                        <div class="input-group">
+                            <label>パスワード</label>
+                            <input type="password" id="password" placeholder="パスワード" value="password">
+                        </div>
+                        <button class="button success" onclick="login()">ログイン</button>
+                        <button class="button danger" onclick="logout()">ログアウト</button>
+                        <div id="authResponse" class="response-box" style="display: none;"></div>
+                    </div>
+                    <div class="card">
+                        <h3>ユーザー管理</h3>
+                        <button class="button" onclick="getUserInfo()">ユーザー情報取得</button>
+                        <button class="button" onclick="getAllUsers()">全ユーザー取得</button>
+                        <div id="userResponse" class="response-box" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 注文管理セクション -->
+            <div class="section">
+                <h2>📋 注文管理</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>注文操作</h3>
+                        <button class="button" onclick="getAllOrders()">全注文取得</button>
+                        <button class="button" onclick="getOrderById()">注文詳細取得</button>
+                        <div class="input-group">
+                            <label>注文ID</label>
+                            <input type="text" id="orderId" placeholder="K001" value="K001">
+                        </div>
+                        <div id="orderResponse" class="response-box" style="display: none;"></div>
+                    </div>
+                    <div class="card">
+                        <h3>注文作成・更新</h3>
+                        <button class="button success" onclick="createOrder()">注文作成</button>
+                        <button class="button" onclick="updateOrder()">注文更新</button>
+                        <button class="button danger" onclick="deleteOrder()">注文削除</button>
+                        <div id="orderCrudResponse" class="response-box" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = localStorage.getItem('authToken');
+        let currentUser = null;
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            checkSystemStatus();
+            checkAuthStatus();
+            setInterval(checkSystemStatus, 30000); // 30秒ごとにシステム状態確認
+        });
+
+        // システム状態確認
+        async function checkSystemStatus() {
+            try {
+                const response = await fetch('/api/system-info');
+                const data = await response.json();
+                
+                document.getElementById('systemStatus').innerHTML = '🟢 システム正常稼働中';
+                document.getElementById('systemStatus').className = 'status-indicator status-online';
+                
+                // バージョン情報更新
+                document.getElementById('versionInfo').innerHTML = `
+                    <strong>PHP:</strong> ${data.php_version}<br>
+                    <strong>Laravel:</strong> ${data.laravel_version}<br>
+                    <strong>DB接続:</strong> ${data.database_connected ? '✅ 正常' : '❌ 異常'}<br>
+                    <strong>最終更新:</strong> ${new Date(data.timestamp).toLocaleString('ja-JP')}
+                `;
+            } catch (error) {
+                document.getElementById('systemStatus').innerHTML = '🔴 システム異常';
+                document.getElementById('systemStatus').className = 'status-indicator status-offline';
+                console.error('システム状態確認エラー:', error);
+            }
+        }
+
+        // システム情報取得
+        async function testSystemInfo() {
+            const responseDiv = document.getElementById('systemInfoResponse');
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = '取得中...';
+            
+            try {
+                const response = await fetch('/api/system-info');
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = 'エラー: ' + error.message;
+            }
+        }
+
+        // DB接続テスト
+        async function testDatabaseConnection() {
+            const responseDiv = document.getElementById('systemInfoResponse');
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = 'DB接続テスト中...';
+            
+            try {
+                const response = await fetch('/api/database-test');
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = 'エラー: ' + error.message;
+            }
+        }
+
+        // ヘルスチェック
+        async function testHealthCheck() {
+            const responseDiv = document.getElementById('systemInfoResponse');
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = 'ヘルスチェック中...';
+            
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = 'エラー: ' + error.message;
+            }
+        }
+
+        // ログイン
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const responseDiv = document.getElementById('authResponse');
+            
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = 'ログイン中...';
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: username,
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                
+                if (response.ok && data.success && data.data && data.data.token) {
+                    authToken = data.data.token;
+                    currentUser = data.data.user;
+                    localStorage.setItem('authToken', authToken);
+                    updateAuthStatus(true);
+                    
+                    // ログイン成功時の視覚的なフィードバック
+                    setTimeout(() => {
+                        responseDiv.style.background = '#d4edda';
+                        responseDiv.style.color = '#155724';
+                        responseDiv.textContent = '✅ ' + data.message;
+                    }, 500);
+                }
+            } catch (error) {
+                responseDiv.textContent = 'エラー: ' + error.message;
+            }
+        }
+
+        // ログアウト
+        async function logout() {
+            const responseDiv = document.getElementById('authResponse');
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = 'ログアウト中...';
+            
+            try {
+                const response = await fetch('/api/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                
+                if (response.ok && data.success) {
+                    // ログアウト成功時の視覚的なフィードバック
+                    setTimeout(() => {
+                        responseDiv.style.background = '#f8d7da';
+                        responseDiv.style.color = '#721c24';
+                        responseDiv.textContent = '✅ ' + data.message;
+                    }, 500);
+                }
+                
+                authToken = null;
+                currentUser = null;
+                localStorage.removeItem('authToken');
+                updateAuthStatus(false);
+            } catch (error) {
+                responseDiv.textContent = 'エラー: ' + error.message;
+            }
+        }
+
+        // 認証状態確認
+        async function checkAuthStatus() {
+            if (!authToken) {
+                updateAuthStatus(false);
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/user', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data && data.data.user) {
+                        currentUser = data.data.user;
+                        updateAuthStatus(true);
+                    } else {
+                        authToken = null;
+                        localStorage.removeItem('authToken');
+                        updateAuthStatus(false);
+                    }
+                } else {
+                    authToken = null;
+                    localStorage.removeItem('authToken');
+                    updateAuthStatus(false);
+                }
+            } catch (error) {
+                updateAuthStatus(false);
+            }
+        }
+
+        // 認証状態表示更新
+        function updateAuthStatus(isLoggedIn) {
+            const statusDiv = document.getElementById('authStatus');
+            if (isLoggedIn && currentUser) {
+                statusDiv.innerHTML = `✅ ログイン中: ${currentUser.name} (${currentUser.role})`;
+                statusDiv.className = 'auth-status auth-logged-in';
+            } else {
+                statusDiv.innerHTML = '❌ ログインしていません';
+                statusDiv.className = 'auth-status auth-logged-out';
+            }
+        }
+
+        // ユーザー情報取得
+        async function getUserInfo() {
+            const responseDiv = document.getElementById('userResponse');
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = 'ユーザー情報取得中...';
+            
+            try {
+                const response = await fetch('/api/user', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                
+                // ユーザー情報が取得できた場合、認証状態を更新
+                if (response.ok && data.success && data.data && data.data.user) {
+                    currentUser = data.data.user;
+                    updateAuthStatus(true);
+                }
+            } catch (error) {
+                responseDiv.textContent = 'エラー: ' + error.message;
+            }
+        }
+
+        // 全ユーザー取得
+        async function getAllUsers() {
+            const responseDiv = document.getElementById('userResponse');
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = '全ユーザー取得中...';
+            
+            try {
+                const response = await fetch('/api/users', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = 'エラー: ' + error.message;
+            }
+        }
+
+        // 全注文取得
+        async function getAllOrders() {
+            const responseDiv = document.getElementById('orderResponse');
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = '全注文取得中...';
+            
+            try {
+                const response = await fetch('/api/orders', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = 'エラー: ' + error.message;
+            }
+        }
+
+        // 注文詳細取得
+        async function getOrderById() {
+            const orderId = document.getElementById('orderId').value;
+            const responseDiv = document.getElementById('orderResponse');
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = '注文詳細取得中...';
+            
+            try {
+                const response = await fetch(`/api/orders/${orderId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = 'エラー: ' + error.message;
+            }
+        }
+
+        // 注文作成
+        async function createOrder() {
+            const responseDiv = document.getElementById('orderCrudResponse');
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = '注文作成中...';
+            
+            const newOrder = {
+                order_id: 'K' + String(Date.now()).slice(-3),
+                product_category: 'テスト商品',
+                customer_name: 'テスト顧客',
+                company_name: 'テスト会社',
+                order_date: new Date().toISOString().split('T')[0],
+                delivery_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                notes: 'APIテスターから作成されたテスト注文'
+            };
+            
+            try {
+                const response = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newOrder)
+                });
+                
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = 'エラー: ' + error.message;
+            }
+        }
+
+        // 注文更新
+        async function updateOrder() {
+            const orderId = document.getElementById('orderId').value;
+            const responseDiv = document.getElementById('orderCrudResponse');
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = '注文更新中...';
+            
+            const updateData = {
+                notes: `更新されました - ${new Date().toLocaleString('ja-JP')}`
+            };
+            
+            try {
+                const response = await fetch(`/api/orders/${orderId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = 'エラー: ' + error.message;
+            }
+        }
+
+        // 注文削除
+        async function deleteOrder() {
+            const orderId = document.getElementById('orderId').value;
+            const responseDiv = document.getElementById('orderCrudResponse');
+            
+            if (!confirm(`注文 ${orderId} を削除しますか？`)) {
+                return;
+            }
+            
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = '注文削除中...';
+            
+            try {
+                const response = await fetch(`/api/orders/${orderId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = 'エラー: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html> 
