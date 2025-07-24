@@ -442,13 +442,33 @@ class Order extends Model
                 
                 // メインファイル
                 if (file_exists("{$basePath}.pdf")) {
-                    $pdfs[] = $this->createPdfFileInfo("{$pattern}.pdf", $folder, 'main');
+                    $filename = "{$pattern}.pdf";
+                    $fullPath = "{$basePath}.pdf";
+                    $pdfs[] = [
+                        'name' => $filename,
+                        'path' => "/aforms-pdf/{$folder}/{$filename}",
+                        'type' => 'main',
+                        'created_time' => file_exists($fullPath) ? filemtime($fullPath) : 0,
+                        'display_order' => 0,
+                        'size' => file_exists($fullPath) ? filesize($fullPath) : 0,
+                        'url' => asset("aforms-pdf/{$folder}/{$filename}")
+                    ];
                 }
                 
                 // 連番ファイル (_1, _2, etc.)
                 $counter = 1;
                 while (file_exists("{$basePath}_{$counter}.pdf")) {
-                    $pdfs[] = $this->createPdfFileInfo("{$pattern}_{$counter}.pdf", $folder, 'additional');
+                    $filename = "{$pattern}_{$counter}.pdf";
+                    $fullPath = "{$basePath}_{$counter}.pdf";
+                    $pdfs[] = [
+                        'name' => $filename,
+                        'path' => "/aforms-pdf/{$folder}/{$filename}",
+                        'type' => 'additional',
+                        'created_time' => file_exists($fullPath) ? filemtime($fullPath) : 0,
+                        'display_order' => $counter,
+                        'size' => file_exists($fullPath) ? filesize($fullPath) : 0,
+                        'url' => asset("aforms-pdf/{$folder}/{$filename}")
+                    ];
                     $counter++;
                 }
             }
@@ -466,7 +486,16 @@ class Order extends Model
                     // ファイル名に注文番号が含まれているかチェック
                     foreach ($searchPatterns as $pattern) {
                         if (strpos($filename, $pattern) !== false) {
-                            $pdfs[] = $this->createPdfFileInfo($file, $folder, 'main');
+                            $fullPath = "{$folderPath}/{$file}";
+                            $pdfs[] = [
+                                'name' => $file,
+                                'path' => "/aforms-pdf/{$folder}/{$file}",
+                                'type' => 'main',
+                                'created_time' => file_exists($fullPath) ? filemtime($fullPath) : 0,
+                                'display_order' => 0,
+                                'size' => file_exists($fullPath) ? filesize($fullPath) : 0,
+                                'url' => asset("aforms-pdf/{$folder}/{$file}")
+                            ];
                             break;
                         }
                     }
@@ -482,7 +511,16 @@ class Order extends Model
                     $files = scandir($folderPath);
                     foreach ($files as $file) {
                         if (pathinfo($file, PATHINFO_EXTENSION) === 'pdf') {
-                            $pdfs[] = $this->createPdfFileInfo($file, $folder, 'fallback');
+                            $fullPath = "{$folderPath}/{$file}";
+                            $pdfs[] = [
+                                'name' => $file,
+                                'path' => "/aforms-pdf/{$folder}/{$file}",
+                                'type' => 'fallback',
+                                'created_time' => file_exists($fullPath) ? filemtime($fullPath) : 0,
+                                'display_order' => 999,
+                                'size' => file_exists($fullPath) ? filesize($fullPath) : 0,
+                                'url' => asset("aforms-pdf/{$folder}/{$file}")
+                            ];
                             break 2; // 最初の1つだけ
                         }
                     }
@@ -490,7 +528,20 @@ class Order extends Model
             }
         }
         
-        return $this->sortPdfFiles($pdfs, $numericOrderId);
+        // 簡単なソート（メインファイル優先、その後作成日時順）
+        if (!empty($pdfs)) {
+            usort($pdfs, function($a, $b) {
+                if ($a['type'] === 'main' && $b['type'] !== 'main') {
+                    return -1;
+                }
+                if ($a['type'] !== 'main' && $b['type'] === 'main') {
+                    return 1;
+                }
+                return $a['created_time'] - $b['created_time'];
+            });
+        }
+        
+        return $pdfs;
     }
     
     /**
@@ -967,57 +1018,5 @@ class Order extends Model
         ];
     }
     
-    /**
-     * Create PDF file info array.
-     *
-     * @param string $filename
-     * @param string $folder
-     * @return array
-     */
-    private function createPdfFileInfo($filename, $folder)
-    {
-        $fullPath = public_path("aforms-pdf/{$folder}/{$filename}");
-        
-        return [
-            'name' => $filename,
-            'filename' => $filename,
-            'path' => "/aforms-pdf/{$folder}/{$filename}",
-            'full_path' => $fullPath,
-            'folder' => $folder,
-            'size' => file_exists($fullPath) ? filesize($fullPath) : 0,
-            'url' => asset("aforms-pdf/{$folder}/{$filename}"),
-            'type' => 'pdf'
-        ];
-    }
-    
-    /**
-     * Sort PDF files by order info.
-     *
-     * @param array $files
-     * @param string $orderNumber
-     * @return array
-     */
-    private function sortPdfFiles($files, $orderNumber)
-    {
-        if (empty($files)) {
-            return $files;
-        }
-        
-        // 順序情報ファイルを確認
-        $folder = pathinfo($files[0]['path'], PATHINFO_DIRNAME);
-        $orderIdPadded = str_pad($orderNumber, 5, '0', STR_PAD_LEFT);
-        $orderFile = public_path("aforms-pdf/{$files[0]['folder']}/{$orderIdPadded}_order.json");
-        
-        if (file_exists($orderFile)) {
-            $orderData = json_decode(file_get_contents($orderFile), true) ?: [];
-            
-            usort($files, function($a, $b) use ($orderData) {
-                $orderA = $orderData[$a['name']] ?? 999;
-                $orderB = $orderData[$b['name']] ?? 999;
-                return $orderA - $orderB;
-            });
-        }
-        
-        return $files;
-    }
+
 }

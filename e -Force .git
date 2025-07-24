@@ -1,0 +1,158 @@
+warning: in the working copy of 'app/Models/Order.php', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/app/Models/Order.php b/app/Models/Order.php[m
+[1mindex 1ec0b54..45df969 100644[m
+[1m--- a/app/Models/Order.php[m
+[1m+++ b/app/Models/Order.php[m
+[36m@@ -442,13 +442,33 @@[m [mpublic function getPdfFiles()[m
+                 [m
+                 // メインファイル[m
+                 if (file_exists("{$basePath}.pdf")) {[m
+[31m-                    $pdfs[] = $this->createPdfFileInfo("{$pattern}.pdf", $folder, 'main');[m
+[32m+[m[32m                    $filename = "{$pattern}.pdf";[m
+[32m+[m[32m                    $fullPath = "{$basePath}.pdf";[m
+[32m+[m[32m                    $pdfs[] = [[m
+[32m+[m[32m                        'name' => $filename,[m
+[32m+[m[32m                        'path' => "/aforms-pdf/{$folder}/{$filename}",[m
+[32m+[m[32m                        'type' => 'main',[m
+[32m+[m[32m                        'created_time' => file_exists($fullPath) ? filemtime($fullPath) : 0,[m
+[32m+[m[32m                        'display_order' => 0,[m
+[32m+[m[32m                        'size' => file_exists($fullPath) ? filesize($fullPath) : 0,[m
+[32m+[m[32m                        'url' => asset("aforms-pdf/{$folder}/{$filename}")[m
+[32m+[m[32m                    ];[m
+                 }[m
+                 [m
+                 // 連番ファイル (_1, _2, etc.)[m
+                 $counter = 1;[m
+                 while (file_exists("{$basePath}_{$counter}.pdf")) {[m
+[31m-                    $pdfs[] = $this->createPdfFileInfo("{$pattern}_{$counter}.pdf", $folder, 'additional');[m
+[32m+[m[32m                    $filename = "{$pattern}_{$counter}.pdf";[m
+[32m+[m[32m                    $fullPath = "{$basePath}_{$counter}.pdf";[m
+[32m+[m[32m                    $pdfs[] = [[m
+[32m+[m[32m                        'name' => $filename,[m
+[32m+[m[32m                        'path' => "/aforms-pdf/{$folder}/{$filename}",[m
+[32m+[m[32m                        'type' => 'additional',[m
+[32m+[m[32m                        'created_time' => file_exists($fullPath) ? filemtime($fullPath) : 0,[m
+[32m+[m[32m                        'display_order' => $counter,[m
+[32m+[m[32m                        'size' => file_exists($fullPath) ? filesize($fullPath) : 0,[m
+[32m+[m[32m                        'url' => asset("aforms-pdf/{$folder}/{$filename}")[m
+[32m+[m[32m                    ];[m
+                     $counter++;[m
+                 }[m
+             }[m
+[36m@@ -466,7 +486,16 @@[m [mpublic function getPdfFiles()[m
+                     // ファイル名に注文番号が含まれているかチェック[m
+                     foreach ($searchPatterns as $pattern) {[m
+                         if (strpos($filename, $pattern) !== false) {[m
+[31m-                            $pdfs[] = $this->createPdfFileInfo($file, $folder, 'main');[m
+[32m+[m[32m                            $fullPath = "{$folderPath}/{$file}";[m
+[32m+[m[32m                            $pdfs[] = [[m
+[32m+[m[32m                                'name' => $file,[m
+[32m+[m[32m                                'path' => "/aforms-pdf/{$folder}/{$file}",[m
+[32m+[m[32m                                'type' => 'main',[m
+[32m+[m[32m                                'created_time' => file_exists($fullPath) ? filemtime($fullPath) : 0,[m
+[32m+[m[32m                                'display_order' => 0,[m
+[32m+[m[32m                                'size' => file_exists($fullPath) ? filesize($fullPath) : 0,[m
+[32m+[m[32m                                'url' => asset("aforms-pdf/{$folder}/{$file}")[m
+[32m+[m[32m                            ];[m
+                             break;[m
+                         }[m
+                     }[m
+[36m@@ -482,7 +511,16 @@[m [mpublic function getPdfFiles()[m
+                     $files = scandir($folderPath);[m
+                     foreach ($files as $file) {[m
+                         if (pathinfo($file, PATHINFO_EXTENSION) === 'pdf') {[m
+[31m-                            $pdfs[] = $this->createPdfFileInfo($file, $folder, 'fallback');[m
+[32m+[m[32m                            $fullPath = "{$folderPath}/{$file}";[m
+[32m+[m[32m                            $pdfs[] = [[m
+[32m+[m[32m                                'name' => $file,[m
+[32m+[m[32m                                'path' => "/aforms-pdf/{$folder}/{$file}",[m
+[32m+[m[32m                                'type' => 'fallback',[m
+[32m+[m[32m                                'created_time' => file_exists($fullPath) ? filemtime($fullPath) : 0,[m
+[32m+[m[32m                                'display_order' => 999,[m
+[32m+[m[32m                                'size' => file_exists($fullPath) ? filesize($fullPath) : 0,[m
+[32m+[m[32m                                'url' => asset("aforms-pdf/{$folder}/{$file}")[m
+[32m+[m[32m                            ];[m
+                             break 2; // 最初の1つだけ[m
+                         }[m
+                     }[m
+[36m@@ -490,7 +528,20 @@[m [mpublic function getPdfFiles()[m
+             }[m
+         }[m
+         [m
+[31m-        return $this->sortPdfFiles($pdfs, $numericOrderId);[m
+[32m+[m[32m        // 簡単なソート（メインファイル優先、その後作成日時順）[m
+[32m+[m[32m        if (!empty($pdfs)) {[m
+[32m+[m[32m            usort($pdfs, function($a, $b) {[m
+[32m+[m[32m                if ($a['type'] === 'main' && $b['type'] !== 'main') {[m
+[32m+[m[32m                    return -1;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                if ($a['type'] !== 'main' && $b['type'] === 'main') {[m
+[32m+[m[32m                    return 1;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                return $a['created_time'] - $b['created_time'];[m
+[32m+[m[32m            });[m
+[32m+[m[32m        }[m
+[32m+[m[41m        [m
+[32m+[m[32m        return $pdfs;[m
+     }[m
+     [m
+     /**[m
+[36m@@ -967,57 +1018,5 @@[m [mpublic function getProcessStatus()[m
+         ];[m
+     }[m
+     [m
+[31m-    /**[m
+[31m-     * Create PDF file info array.[m
+[31m-     *[m
+[31m-     * @param string $filename[m
+[31m-     * @param string $folder[m
+[31m-     * @return array[m
+[31m-     */[m
+[31m-    private function createPdfFileInfo($filename, $folder)[m
+[31m-    {[m
+[31m-        $fullPath = public_path("aforms-pdf/{$folder}/{$filename}");[m
+[31m-        [m
+[31m-        return [[m
+[31m-            'name' => $filename,[m
+[31m-            'filename' => $filename,[m
+[31m-            'path' => "/aforms-pdf/{$folder}/{$filename}",[m
+[31m-            'full_path' => $fullPath,[m
+[31m-            'folder' => $folder,[m
+[31m-            'size' => file_exists($fullPath) ? filesize($fullPath) : 0,[m
+[31m-            'url' => asset("aforms-pdf/{$folder}/{$filename}"),[m
+[31m-            'type' => 'pdf'[m
+[31m-        ];[m
+[31m-    }[m
+[31m-    [m
+[31m-    /**[m
+[31m-     * Sort PDF files by order info.[m
+[31m-     *[m
+[31m-     * @param array $files[m
+[31m-     * @param string $orderNumber[m
+[31m-     * @return array[m
+[31m-     */[m
+[31m-    private function sortPdfFiles($files, $orderNumber)[m
+[31m-    {[m
+[31m-        if (empty($files)) {[m
+[31m-            return $files;[m
+[31m-        }[m
+[31m-        [m
+[31m-        // 順序情報ファイルを確認[m
+[31m-        $folder = pathinfo($files[0]['path'], PATHINFO_DIRNAME);[m
+[31m-        $orderIdPadded = str_pad($orderNumber, 5, '0', STR_PAD_LEFT);[m
+[31m-        $orderFile = public_path("aforms-pdf/{$files[0]['folder']}/{$orderIdPadded}_order.json");[m
+[31m-        [m
+[31m-        if (file_exists($orderFile)) {[m
+[31m-            $orderData = json_decode(file_get_contents($orderFile), true) ?: [];[m
+[31m-            [m
+[31m-            usort($files, function($a, $b) use ($orderData) {[m
+[31m-                $orderA = $orderData[$a['name']] ?? 999;[m
+[31m-                $orderB = $orderData[$b['name']] ?? 999;[m
+[31m-                return $orderA - $orderB;[m
+[31m-            });[m
+[31m-        }[m
+[31m-        [m
+[31m-        return $files;[m
+[31m-    }[m
+[32m+[m
+ }[m
