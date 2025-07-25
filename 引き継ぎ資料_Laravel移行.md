@@ -52,6 +52,29 @@
   - `login.php` (データベース認証)
   - 権限管理: admin/employee
 
+### 7. Vendor依存関係問題解決完了 ✅
+- **問題**: vendorフォルダが存在しない状態
+- **原因**: `composer install`が実行されていなかった
+- **解決方法**: `composer install`を実行
+- **結果**: 108個のLaravel依存関係パッケージを正常にインストール
+- **環境**: GitHub Codespaces環境 (`/workspaces/laravel-koutei-system`)
+- **実行日**: 2025-07-25
+
+### 8. GitHub Actions デプロイ設定チェック・修正完了 ✅
+- **対象ファイル**: `.github/workflows/deploy.yml`
+- **発見された問題点**:
+  - Pull Requestでも本番デプロイが実行される重大な設定ミス
+  - PHP extensionsの重複（mbstring, iconv, pdo）
+  - 本番環境で毎回APP_KEYを再生成する問題設定
+  - composer install で `--no-scripts` による Laravel 処理スキップ
+- **修正内容**:
+  - pull_request トリガーを削除（main ブランチ push のみに変更）
+  - PHP extensions 重複除去・最適化
+  - Laravel キャッシュクリア処理追加
+  - composer install オプション最適化
+- **修正済みファイル**: `deploy-fixed.yml` として保存
+- **実行日**: 2025-07-25
+
 ## 次のステップ (Todo順)
 
 1. **マイグレーション実行** (テーブル作成) - **進行中**
@@ -132,21 +155,22 @@ laravel-koutei/
 
 ## 現在の作業ディレクトリ
 ```
-C:\Users\tmkty\Desktop\koutei\laravel-koutei
+/workspaces/laravel-koutei-system
 ```
+**実行環境**: GitHub Codespaces (Linux)
 
 ## アクセス方法
 
-### Webブラウザテスト
+### 開発サーバー（GitHub Codespaces）
 ```
-http://localhost/koutei/laravel-koutei/test_web.php
+cd /workspaces/laravel-koutei-system
+php artisan serve
+# Codespaces環境では自動的にポートフォワーディングが設定される
 ```
 
-### 開発サーバー（今後）
+### Webブラウザテスト（従来環境）
 ```
-cd laravel-koutei
-php artisan serve
-http://localhost:8000
+http://localhost/koutei/laravel-koutei/test_web.php
 ```
 
 ## 次回の作業手順
@@ -158,4 +182,4 @@ http://localhost:8000
 
 ---
 **作成日**: 2025-07-12
-**更新日**: 2025-07-12 (Todo3完了) 
+**更新日**: 2025-07-25 (Vendor依存関係問題解決、GitHub Codespaces環境対応) 

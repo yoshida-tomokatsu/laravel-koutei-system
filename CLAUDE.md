@@ -1,13 +1,13 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+このファイルは、Claude Code (claude.ai/code) がこのリポジトリで作業する際のガイダンスを提供します。
 
-## Project Overview
-This is a Laravel-based order management system ("工程管理システム") for Kiryu Factory, migrated from PHP to Laravel 8. It manages textile manufacturing orders, PDF documents, and production workflows.
+## プロジェクト概要
+これは桐生ファクトリー向けのLaravel ベース受注管理システム（「工程管理システム」）で、PHP から Laravel 8 に移行されました。テキスタイル製造業の受注、PDF ドキュメント、および生産ワークフローを管理します。
 
-## Common Commands
+## よく使うコマンド
 
-### Development
+### 開発用
 ```bash
 # Start development server
 php artisan serve
@@ -28,7 +28,7 @@ php artisan migrate:fresh    # Fresh database
 php artisan db:seed         # Run seeders
 ```
 
-### Testing & Debugging
+### テスト・デバッグ用
 ```bash
 # Run tests
 php artisan test
@@ -43,7 +43,7 @@ php artisan view:clear
 php artisan key:generate
 ```
 
-### Production Deployment
+### 本番デプロイ
 ```bash
 # Automatic deployment via GitHub Actions to main branch
 git push origin main
@@ -111,6 +111,20 @@ DB_PASSWORD=ctwjr3mmf5
 ### Test Users
 - **Admin**: admin / password
 - **Employee**: employee / employee123
+
+## 作業記録について
+
+### 作業ログ記録要件
+このプロジェクトで実施した全ての作業は`引き継ぎ資料_Laravel移行.md`に記録してください。記録対象は以下の通りです：
+- 問題解決手順
+- 環境設定変更
+- バグ修正と解決策
+- 新機能実装
+- 設定更新
+- データベース変更
+- デプロイ修正
+
+重要な作業完了後は速やかに引き継ぎ資料を更新し、プロジェクトの継続性を維持してください。
 
 ## Important Notes
 
