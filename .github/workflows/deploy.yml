@@ -22,8 +22,8 @@ jobs:
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
       
     - name: Install Dependencies
-      run: composer install -q --no-ansi --no-interaction --no-progress --prefer-dist --optimize-autoloader
-      
+      run: composer install --no-dev --optimize-autoloader --no-ansi --no-interaction --no-progress --prefer-dist
+　　　  
     # 本番環境では事前設定済みのAPP_KEYを使用（削除または条件付き実行）
     # - name: Generate key
     #   run: php artisan key:generate
