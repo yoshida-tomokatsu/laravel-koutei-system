@@ -60,7 +60,7 @@
 - **環境**: GitHub Codespaces環境 (`/workspaces/laravel-koutei-system`)
 - **実行日**: 2025-07-25
 
-### 8. GitHub Actions デプロイ設定チェック・修正完了 ✅
+### 8. GitHub Actions デプロイ設定チェック・修正・コミット完了 ✅
 - **対象ファイル**: `.github/workflows/deploy.yml`
 - **発見された問題点**:
   - Pull Requestでも本番デプロイが実行される重大な設定ミス
@@ -72,7 +72,8 @@
   - PHP extensions 重複除去・最適化
   - Laravel キャッシュクリア処理追加
   - composer install オプション最適化
-- **修正済みファイル**: `deploy-fixed.yml` として保存
+- **修正済みファイル**: `deploy-fixed.yml` として保存、元ファイルに適用
+- **コミット**: `a594399` - 「修正: GitHub Actions deploy.yml - 重大な設定問題を解決」
 - **実行日**: 2025-07-25
 
 ## 次のステップ (Todo順)
