@@ -126,35 +126,35 @@ DB_PASSWORD=ctwjr3mmf5
 
 重要な作業完了後は速やかに引き継ぎ資料を更新し、プロジェクトの継続性を維持してください。
 
-## Important Notes
+## 重要な注意事項
 
-### Order ID System
-- Orders use formatted IDs with # prefix (e.g., #0001)
-- Complex PDF file discovery logic handles ID mismatches
-- Multiple search patterns for file location (4-digit, 5-digit padding)
+### 受注IDシステム
+- 受注は#プレフィックス付きフォーマットID（例：#0001）を使用
+- 複雑なPDFファイル発見ロジックがID不一致を処理
+- ファイル場所の複数検索パターン（4桁、5桁パディング）
 
-### Content Parsing
-The Order model contains extensive JSON content parsing methods for extracting:
-- Customer information (name, email, phone, address)
-- Company details
-- Delivery dates
-- Publication permissions
-- Product categories (automatic detection from form titles)
+### コンテンツ解析
+Orderモデルには以下を抽出する広範なJSON content解析メソッドが含まれます：
+- 顧客情報（名前、メール、電話、住所）
+- 会社詳細
+- 納期
+- 公開許可
+- 製品カテゴリ（フォームタイトルからの自動検出）
 
-### Security & Access Control
-- PDFs protected from direct access via Laravel routing
-- Authentication required for most functionality
-- CSRF protection enabled
-- Production environment has debug disabled
+### セキュリティ・アクセス制御
+- Laravelルーティング経由でPDFの直接アクセスを保護
+- ほとんどの機能で認証が必要
+- CSRF保護有効
+- 本番環境ではデバッグ無効
 
-### File Management
-- Image uploads in `/public/uploads/{order_id}/`
-- PDF management with reordering, renaming capabilities
-- Fallback mechanisms for file discovery
+### ファイル管理
+- `/public/uploads/{order_id}/` での画像アップロード
+- 並び替え、リネーム機能付きPDF管理
+- ファイル発見のフォールバック機構
 
-## Migration Status
-This system was migrated from existing PHP codebase. Key legacy aspects:
-- Maintains WordPress table structure compatibility
-- Preserves existing PDF file organization
-- Supports existing user authentication data
-- Complex content field JSON structure for backward compatibility
+## 移行状況
+このシステムは既存PHPコードベースから移行されました。主なレガシー要素：
+- WordPressテーブル構造互換性の維持
+- 既存PDFファイル組織の保持
+- 既存ユーザー認証データのサポート
+- 後方互換性のための複雑なcontentフィールドJSON構造
