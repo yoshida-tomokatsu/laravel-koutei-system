@@ -681,6 +681,12 @@ class OrderController extends Controller
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('注文情報の更新処理中に例外発生', [
+                'order_id' => $orderId,
+                'request_data' => $request->all(),
+                'error_message' => $e->getMessage(),
+                'error_trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => '注文情報の更新に失敗しました',

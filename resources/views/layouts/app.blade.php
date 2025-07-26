@@ -81,9 +81,25 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">ログアウト</a>
-                    </li>
+                    @auth
+                        <li class="nav-item">
+                            <span class="navbar-text me-3">
+                                ログイン中: <strong>{{ auth()->user()->user_id }}</strong>
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-light btn-sm">
+                                    ログアウト
+                                </button>
+                            </form>
+                        </li>
+                    @else
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('login') }}">ログイン</a>
+                        </li>
+                    @endauth
                 </ul>
             </div>
         </div>

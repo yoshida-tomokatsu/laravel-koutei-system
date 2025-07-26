@@ -869,6 +869,12 @@ class Order extends Model
 
             return true;
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('注文情報の更新に失敗しました。', [
+                'order_id' => $this->id,
+                'data' => $data,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return false;
         }
     }
@@ -884,6 +890,9 @@ class Order extends Model
      */
     private function updateContentField($content, $type, $name, $value)
     {
+        if (!is_array($content)) {
+            $content = [];
+        }
         if (!isset($content['attrs']) || !is_array($content['attrs'])) {
             $content['attrs'] = [];
         }

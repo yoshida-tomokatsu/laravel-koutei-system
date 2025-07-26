@@ -807,6 +807,28 @@
                     <button class="btn-new" onclick="showNewOrderModal()" style="background: #9b59b6;">+ 新規注文</button>
                 </div>
             @endif
+            
+            <!-- ユーザー情報とログアウト -->
+            <div style="display: flex; align-items: center; gap: 15px; margin-left: 15px;">
+                <span style="color: #bdc3c7; font-size: 13px;">
+                    ログイン中: <strong style="color: white;">{{ auth()->user()->user_id ?? 'ゲスト' }}</strong>
+                </span>
+                <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                    @csrf
+                    <button type="submit" style="
+                        background: #e74c3c;
+                        color: white;
+                        border: none;
+                        padding: 6px 16px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-size: 13px;
+                        transition: background-color 0.2s;
+                    " onmouseover="this.style.backgroundColor='#c0392b'" onmouseout="this.style.backgroundColor='#e74c3c'">
+                        ログアウト
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 

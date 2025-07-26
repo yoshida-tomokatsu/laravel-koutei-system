@@ -26,15 +26,10 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'user_id',
-        'password_hash',
+        'password',
         'name',
         'email',
         'role',
-        'permissions',
-        'is_active',
-        'last_login',
-        'created_by',
-        'notes',
     ];
 
     /**
@@ -43,7 +38,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password_hash',
+        'password',
         'remember_token',
     ];
 
@@ -53,22 +48,8 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'permissions' => 'json',
-        'is_active' => 'boolean',
-        'last_login' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'email_verified_at' => 'datetime',
     ];
-
-    /**
-     * Get the password for the user.
-     *
-     * @return string
-     */
-    public function getAuthPassword()
-    {
-        return $this->password_hash;
-    }
 
     /**
      * Get the name of the unique identifier for the user.

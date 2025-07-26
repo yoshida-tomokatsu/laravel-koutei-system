@@ -13,9 +13,15 @@ class CreateOrdersTable extends Migration
      */
     public function up()
     {
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create('wp_wqorders_editable', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->integer('formId')->nullable();
+            $table->string('formTitle', 100)->nullable();
+            $table->integer('customer')->nullable();
+            $table->decimal('total', 10, 2)->nullable();
+            $table->bigInteger('created')->nullable();
+            $table->text('content')->nullable();
+            $table->integer('last_updated')->nullable();
         });
     }
 
@@ -26,6 +32,6 @@ class CreateOrdersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('wp_wqorders_editable');
     }
 }

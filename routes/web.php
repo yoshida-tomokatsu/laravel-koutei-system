@@ -16,7 +16,7 @@ use App\Http\Controllers\PdfController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/orders');
 });
 
 // 保護されたルート（認証が必要）
@@ -25,13 +25,13 @@ Route::middleware(['auth'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
     
+    // 注文管理ページ（認証必須）
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{orderId}/update-info', [OrderController::class, 'updateOrderInfo'])->name('orders.update-info');
+    
     Route::get('/images/{orderId}', [OrderController::class, 'viewImages'])->name('images.show');
 });
-
-// 一時的に認証なしでアクセス可能
-Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-Route::patch('/orders/{orderId}/update-info', [OrderController::class, 'updateOrderInfo'])->name('orders.update-info');
 
 // PDF管理ルート
 Route::prefix('pdf')->group(function () {
