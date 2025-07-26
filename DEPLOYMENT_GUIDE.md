@@ -23,10 +23,12 @@ DB_PASSWORD=ctwjr3mmf5
 ```env
 APP_NAME="工程管理システム"
 APP_ENV=production
-APP_KEY=base64:KOUTEI_SYSTEM_PRODUCTION_KEY_2025
+APP_KEY=base64:qWKe8uFO6ALKta3hmDb42Bsi/gHppLn4S/MFQ4ZJiTg=
 APP_DEBUG=false
 APP_URL=https://koutei.kiryu-factory.com
 ```
+
+⚠️ **重要**: APP_KEYは正しいLaravel標準の32バイトキーである必要があります。
 
 ## 🚀 **デプロイ手順**
 
@@ -127,8 +129,10 @@ php artisan view:clear
 - **解決**: `emergency_check.php`で診断 → 問題特定 → 対応
 
 #### **2. 500 Internal Server Error**
-- **原因**: データベース接続エラー、Laravel設定ミス
-- **解決**: `production_env_fix.php`を実行
+- **原因**: データベース接続エラー、Laravel設定ミス、APP_KEY問題
+- **解決**: 
+  - `production_env_fix.php`を実行
+  - APP_KEYエラーの場合: `app_key_fix.php`または`production_app_key_fix.php`を実行
 
 #### **3. ログインできない**
 - **原因**: usersテーブルの構造不整合
