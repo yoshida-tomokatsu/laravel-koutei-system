@@ -52,7 +52,20 @@ php artisan view:clear
 
 ### **2. 緊急時の修正スクリプト**
 
-本番環境で500エラーが発生した場合：
+#### **Laravel起動しない場合（最優先）**
+
+1. **`emergency_check.php`をアップロード**
+   - FTPまたはcPanelファイルマネージャーでアップロード
+   - アップロード先: `/public_html/emergency_check.php`
+
+2. **ブラウザで診断実行**
+   ```
+   https://koutei.kiryu-factory.com/emergency_check.php
+   ```
+
+3. **診断結果を確認して問題を特定**
+
+#### **500エラーが発生した場合**
 
 1. **`production_env_fix.php`をアップロード**
    - FTPまたはcPanelファイルマネージャーでアップロード
@@ -71,23 +84,27 @@ php artisan view:clear
 
 ### **よくある問題と解決方法**
 
-#### **1. 500 Internal Server Error**
+#### **1. Laravel起動しない（白画面・404エラー）**
+- **原因**: vendor/ディレクトリ不足、.env設定ミス、Laravel構造問題
+- **解決**: `emergency_check.php`で診断 → 問題特定 → 対応
+
+#### **2. 500 Internal Server Error**
 - **原因**: データベース接続エラー、Laravel設定ミス
 - **解決**: `production_env_fix.php`を実行
 
-#### **2. ログインできない**
+#### **3. ログインできない**
 - **原因**: usersテーブルの構造不整合
 - **解決**: 管理者ユーザー情報
   - **ユーザーID**: `admin`
   - **パスワード**: `password`
 
-#### **3. データベース接続エラー**
+#### **4. データベース接続エラー**
 - **確認事項**:
   - データベース名: `factory0328_wp2`
   - ユーザー名: `factory0328_wp2`
   - パスワード: `ctwjr3mmf5`
 
-#### **4. 注文保存エラー**
+#### **5. 注文保存エラー**
 - **原因**: `wp_wqorders_editable`テーブルの`notes`カラム不足
 - **解決**: 修正スクリプトで自動追加
 
@@ -97,6 +114,7 @@ php artisan view:clear
 - `production_env_fix.php` - 本番環境用総合修正スクリプト
 - `standalone_fix.php` - Laravel非依存の独立修正スクリプト
 - `laravel_startup_fix.php` - Laravel起動問題修正スクリプト
+- `emergency_check.php` - **緊急診断スクリプト（Laravel起動しない場合）**
 
 ### **データベース**
 - `factory0328_wp2.sql` - 本番データベースのバックアップ
