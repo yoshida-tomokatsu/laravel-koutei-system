@@ -50,7 +50,45 @@ php artisan route:clear
 php artisan view:clear
 ```
 
-### **2. 緊急時の修正スクリプト**
+### **緊急時の修正スクリプト**
+
+#### **🚨 404エラー継続中の場合（最優先）**
+
+**問題**: すべてのPHPファイルが404エラーになる
+**原因**: サーバー設定、ドキュメントルート、PHP設定の根本的問題
+
+**対応手順**:
+
+1. **GitHubから以下のファイルをダウンロード**:
+   - `URGENT_FIX.php` (最小PHPテスト)
+   - `test.html` (HTMLテスト)
+   - `one_click_fix.php` (自動修正スクリプト)
+
+2. **cPanelで以下のすべての場所にアップロード**:
+   ```
+   /public_html/URGENT_FIX.php
+   /public_html/test.html
+   /public_html/public/URGENT_FIX.php
+   /public_html/public/test.html
+   /public_html/koutei/URGENT_FIX.php
+   /public_html/koutei/test.html
+   /public_html/www/URGENT_FIX.php
+   /public_html/www/test.html
+   ```
+
+3. **以下のURLを順番にテスト**:
+   ```
+   https://koutei.kiryu-factory.com/test.html
+   https://koutei.kiryu-factory.com/URGENT_FIX.php
+   https://koutei.kiryu-factory.com/public/test.html
+   https://koutei.kiryu-factory.com/public/URGENT_FIX.php
+   https://koutei.kiryu-factory.com/koutei/test.html
+   https://koutei.kiryu-factory.com/koutei/URGENT_FIX.php
+   ```
+
+4. **どれか1つでも成功した場所に `one_click_fix.php` をアップロード**
+
+5. **成功した場所のURLで `one_click_fix.php` を実行**
 
 #### **Laravel起動しない場合（最優先）**
 
